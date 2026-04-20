@@ -4,7 +4,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using Open.Nat;
+using OpenNat;
 
 namespace MCServerManager.Services
 {
@@ -77,8 +77,8 @@ namespace MCServerManager.Services
                 var device = await discoverer.DiscoverDeviceAsync();
                 
                 // TCPとUDPのマッピングを追加するわ
-                await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, port, port, 0, $"Minecraft Server - {serverName} (TCP)"));
-                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, port, port, 0, $"Minecraft Server - {serverName} (UDP)"));
+                await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, port, port, $"Minecraft Server - {serverName} (TCP)"));
+                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, port, port, $"Minecraft Server - {serverName} (UDP)"));
             }
             catch (Exception)
             {
