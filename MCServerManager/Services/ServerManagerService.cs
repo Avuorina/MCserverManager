@@ -4,7 +4,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using OpenNat;
+using SharpOpenNat;
 
 namespace MCServerManager.Services
 {
@@ -48,7 +48,7 @@ namespace MCServerManager.Services
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ファイアウォールの設定に失敗したわ。管理者権限が必要よ。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"ファイアウォールの設定に失敗しました。管理者権限が必要です。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -73,9 +73,9 @@ namespace MCServerManager.Services
         {
             try
             {
-                var discoverer = new NatDiscoverer();
-                var device = await discoverer.DiscoverDeviceAsync();
-                
+                // 10秒でタイムアウトするわ
+                var device = await OpenNat.Discoverer.DiscoverDeviceAsync();
+
                 // TCPとUDPのマッピングを追加するわ
                 await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, port, port, $"Minecraft Server - {serverName} (TCP)"));
                 await device.CreatePortMapAsync(new Mapping(Protocol.Udp, port, port, $"Minecraft Server - {serverName} (UDP)"));
@@ -91,7 +91,7 @@ namespace MCServerManager.Services
         {
             if (!File.Exists(batFilePath))
             {
-                throw new FileNotFoundException($".batファイルが見つからないわ。パスを確認してちょうだい: {batFilePath}");
+                throw new FileNotFoundException($"指定された.batファイルが見つかりません。パスを確認してください: {batFilePath}");
             }
 
             ProcessStartInfo psi = new ProcessStartInfo
@@ -117,7 +117,7 @@ namespace MCServerManager.Services
             }
             else
             {
-                MessageBox.Show("指定されたフォルダが見つからないわ。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("指定されたフォルダが見つかりません。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }

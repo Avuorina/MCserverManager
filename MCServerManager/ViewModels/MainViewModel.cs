@@ -77,13 +77,21 @@ namespace MCServerManager.ViewModels
                     var list = JsonSerializer.Deserialize<ObservableCollection<ServerInfo>>(json);
                     if (list != null)
                     {
+                        foreach (var server in list)
+                        {
+                            var existing = Servers.FirstOrDefault(s => s.FolderPath == server.FolderPath);
+                            if (existing != null)
+                            {
+                                server.IsRunning = existing.IsRunning;
+                            }
+                        }
                         Servers = list;
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"保存データの読み込みに失敗したわ。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"保存データの読み込みに失敗しました。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -97,7 +105,7 @@ namespace MCServerManager.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"保存データの書き込みに失敗したわ。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"保存データの書き込みに失敗しました。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -128,7 +136,7 @@ namespace MCServerManager.ViewModels
         {
             if (SelectedServer != null)
             {
-                var result = MessageBox.Show($"本当に {SelectedServer.Name} を削除してもいいの？", "確認", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show($"本当に {SelectedServer.Name} を削除してもよろしいですか？", "確認", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
                     Servers.Remove(SelectedServer);
@@ -143,7 +151,7 @@ namespace MCServerManager.ViewModels
 
             if (!Directory.Exists(server.FolderPath) || !File.Exists(server.BatFilePath))
             {
-                MessageBox.Show("フォルダか.batファイルが存在しないみたい。パスを確認してね。", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("フォルダまたは.batファイルが存在しません。パスを確認してください。", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -162,7 +170,7 @@ namespace MCServerManager.ViewModels
                 ServerManagerService.StartServer(server.FolderPath, server.BatFilePath);
                 server.IsRunning = true;
                 
-                MessageBox.Show("サーバー起動とポート開放の魔法をかけたわ！\nコンソールウィンドウを確認してね。", "起動完了", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("サーバーの起動とポート開放を実行しました。\nコンソールウィンドウを確認してください。", "起動完了", MessageBoxButton.OK, MessageBoxImage.Information);
                 
                 // 再描画のため
                 var index = Servers.IndexOf(server);
@@ -172,7 +180,7 @@ namespace MCServerManager.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"起動中にエラーが起きちゃったわ。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"起動中にエラーが発生しました。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -73,7 +73,7 @@ namespace MCServerManager.ViewModels
         {
             var dialog = new OpenFolderDialog
             {
-                Title = "サーバーのフォルダを選択してちょうだい"
+                Title = "サーバーのフォルダを選択してください"
             };
 
             if (dialog.ShowDialog() == true)
@@ -86,7 +86,7 @@ namespace MCServerManager.ViewModels
         {
             var dialog = new OpenFileDialog
             {
-                Title = "起動用のbatファイルを選んでね",
+                Title = "起動用のbatファイルを選択してください",
                 Filter = "バッチファイル (*.bat)|*.bat|すべてのファイル (*.*)|*.*",
                 InitialDirectory = string.IsNullOrWhiteSpace(FolderPath) ? Environment.GetFolderPath(Environment.SpecialFolder.MyComputer) : FolderPath
             };

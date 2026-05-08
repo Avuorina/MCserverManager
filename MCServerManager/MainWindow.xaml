@@ -58,12 +58,14 @@
         </Grid.RowDefinitions>
 
         <!-- ツールバー -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#333333" Padding="10">
-            <Button Content="➕ サーバー追加" Command="{Binding AddServerCommand}" Style="{StaticResource GrassButtonStyle}"/>
-            <Button Content="🔄 一覧更新" Command="{Binding RefreshCommand}" Style="{StaticResource GrassButtonStyle}"/>
-            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
-            <Button Content="🗑 選択削除" Command="{Binding DeleteServerCommand}" Style="{StaticResource DeleteButtonStyle}"/>
-        </StackPanel>
+        <Border Grid.Row="0" Background="#333333" Padding="10">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="➕ サーバー追加" Command="{Binding AddServerCommand}" Style="{StaticResource GrassButtonStyle}"/>
+                <Button Content="🔄 一覧更新" Command="{Binding RefreshCommand}" Style="{StaticResource GrassButtonStyle}"/>
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
+                <Button Content="🗑 選択削除" Command="{Binding DeleteServerCommand}" Style="{StaticResource DeleteButtonStyle}"/>
+            </StackPanel>
+        </Border>
 
         <!-- サーバーリスト -->
         <DataGrid Grid.Row="1" ItemsSource="{Binding Servers}" SelectedItem="{Binding SelectedServer}" 
@@ -96,7 +98,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Content="起動するわ！(魔法)" Command="{Binding DataContext.StartServerCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                <Button Content="起動" Command="{Binding DataContext.StartServerCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
                                         CommandParameter="{Binding}"
                                         Style="{StaticResource GrassButtonStyle}" Padding="10,2" Margin="2" />
                                 <Button Content="フォルダを開く" Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=Window}}" 

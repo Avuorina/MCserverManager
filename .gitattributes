@@ -1,0 +1,7 @@
+* text=auto
+
+# Windows/WPF development
+*.cs text diff=csharp
+*.xaml text eol=crlf
+*.sln text eol=crlf
+*.csproj text eol=crlf
