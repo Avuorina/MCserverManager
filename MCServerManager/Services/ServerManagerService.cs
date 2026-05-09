@@ -42,13 +42,46 @@ namespace MCServerManager.Services
         {
             try
             {
-                // TCPとUDPの両方を開放するわ
-                RunNetsh($"advfirewall firewall add rule name=\"Minecraft {serverName} TCP\" dir=in action=allow protocol=TCP localport={port}");
-                RunNetsh($"advfirewall firewall add rule name=\"Minecraft {serverName} UDP\" dir=in action=allow protocol=UDP localport={port}");
+                string tcpRuleName = $"Minecraft {serverName} TCP";
+                if (!FirewallRuleExists(tcpRuleName))
+                {
+                    RunNetsh($"advfirewall firewall add rule name=\"{tcpRuleName}\" dir=in action=allow protocol=TCP localport={port}");
+                }
+
+                string udpRuleName = $"Minecraft {serverName} UDP";
+                if (!FirewallRuleExists(udpRuleName))
+                {
+                    RunNetsh($"advfirewall firewall add rule name=\"{udpRuleName}\" dir=in action=allow protocol=UDP localport={port}");
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"ファイアウォールの設定に失敗しました。管理者権限が必要です。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private static bool FirewallRuleExists(string ruleName)
+        {
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = "netsh",
+                    Arguments = $"advfirewall firewall show rule name=\"{ruleName}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using (Process? process = Process.Start(psi))
+                {
+                    process?.WaitForExit();
+                    // 終了コードが0ならルールが存在するわ
+                    return process?.ExitCode == 0;
+                }
+            }
+            catch
+            {
+                return false;
             }
         }
 

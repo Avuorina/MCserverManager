@@ -5,11 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading.Tasks;
+using System.Net.Http;
+using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Input;
 using MCServerManager.Models;
 using MCServerManager.Mvvm;
 using MCServerManager.Services;
+using MineStatLib;
 
 namespace MCServerManager.ViewModels
 {
@@ -17,6 +21,31 @@ namespace MCServerManager.ViewModels
     {
         private ObservableCollection<ServerInfo> _servers = new();
         private ServerInfo? _selectedServer;
+        private static readonly HttpClient _httpClient = new HttpClient();
+        private DispatcherTimer _refreshTimer;
+        private string _globalIp = "取得中...";
+        private bool _isAutoRefreshEnabled = false;
+
+        public bool IsAutoRefreshEnabled
+        {
+            get => _isAutoRefreshEnabled;
+            set
+            {
+                if (_isAutoRefreshEnabled != value)
+                {
+                    _isAutoRefreshEnabled = value;
+                    OnPropertyChanged();
+                    if (_isAutoRefreshEnabled)
+                    {
+                        _refreshTimer.Start();
+                    }
+                    else
+                    {
+                        _refreshTimer.Stop();
+                    }
+                }
+            }
+        }
 
         public ObservableCollection<ServerInfo> Servers
         {
@@ -43,6 +72,7 @@ namespace MCServerManager.ViewModels
         public ICommand RefreshCommand { get; }
         public ICommand StartServerCommand { get; }
         public ICommand OpenFolderCommand { get; }
+        public ICommand CopyIpCommand { get; }
 
         public MainViewModel()
         {
@@ -51,8 +81,36 @@ namespace MCServerManager.ViewModels
             RefreshCommand = new RelayCommand(_ => LoadServers());
             StartServerCommand = new RelayCommand(param => StartServer(param as ServerInfo));
             OpenFolderCommand = new RelayCommand(param => OpenFolder(param as ServerInfo));
+            CopyIpCommand = new RelayCommand(param => CopyIp(param as ServerInfo));
+
+            _refreshTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(10)
+            };
+            _refreshTimer.Tick += (s, e) => { _ = UpdatePlayerCountsAsync(); };
 
             LoadServers();
+            _ = FetchGlobalIpAsync();
+        }
+
+        private async Task FetchGlobalIpAsync()
+        {
+            try
+            {
+                _globalIp = await _httpClient.GetStringAsync("https://api.ipify.org");
+            }
+            catch
+            {
+                _globalIp = "127.0.0.1"; // 取得失敗時のフォールバック
+            }
+        }
+
+        private void CopyIp(ServerInfo? server)
+        {
+            if (server == null) return;
+            string text = _globalIp;
+            Clipboard.SetText(text);
+            MessageBox.Show($"「{text}」をクリップボードにコピーしました！", "コピー完了", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private string GetSaveFilePath()
@@ -88,6 +146,9 @@ namespace MCServerManager.ViewModels
                         Servers = list;
                     }
                 }
+                
+                // ロード後に非同期でプレイヤー数を取得するわ
+                _ = UpdatePlayerCountsAsync();
             }
             catch (Exception ex)
             {
@@ -190,6 +251,38 @@ namespace MCServerManager.ViewModels
             {
                 ServerManagerService.OpenExplorer(server.FolderPath);
             }
+        }
+
+        private async Task UpdatePlayerCountsAsync()
+        {
+            var tasks = Servers.Select(async server =>
+            {
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        // ローカルホストに対して、タイムアウト5秒でPingを送るわ
+                        var ms = new MineStat("127.0.0.1", (ushort)server.Port, 5, SlpProtocol.Automatic);
+                        if (ms.ServerUp)
+                        {
+                            server.PlayerCount = $"{ms.CurrentPlayers} / {ms.MaximumPlayers}";
+                            server.IsRunning = true; // Ping応答があれば確実に起動中ね
+                        }
+                        else
+                        {
+                            server.PlayerCount = "- / -";
+                            server.IsRunning = false;
+                        }
+                    }
+                    catch
+                    {
+                        server.PlayerCount = "- / -";
+                        server.IsRunning = false;
+                    }
+                });
+            });
+
+            await Task.WhenAll(tasks);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

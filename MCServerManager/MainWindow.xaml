@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewmodels="clr-namespace:MCServerManager.ViewModels"
         Title="Minecraft Server Manager" Height="450" Width="800"
-        WindowStartupLocation="CenterScreen" Background="#1E1E1E" Foreground="#EEEEEE">
+        WindowStartupLocation="CenterScreen" Background="#1E1E1E" Foreground="#EEEEEE"
+        Icon="pack://application:,,,/appicon.ico">
 
     <Window.DataContext>
         <viewmodels:MainViewModel />
@@ -64,6 +65,9 @@
                 <Button Content="🔄 一覧更新" Command="{Binding RefreshCommand}" Style="{StaticResource GrassButtonStyle}"/>
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
                 <Button Content="🗑 選択削除" Command="{Binding DeleteServerCommand}" Style="{StaticResource DeleteButtonStyle}"/>
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
+                <CheckBox Content="🔄 自動更新 (10秒毎)" IsChecked="{Binding IsAutoRefreshEnabled}" 
+                          Foreground="#E0E0E0" VerticalAlignment="Center" Margin="5,0"/>
             </StackPanel>
         </Border>
 
@@ -92,6 +96,16 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
+                
+                <DataGridTextColumn Header="プレイヤー" Binding="{Binding PlayerCount}" Width="80">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                
                 <DataGridTextColumn Header="パス" Binding="{Binding FolderPath}" Width="200" />
                 
                 <DataGridTemplateColumn Header="アクション" Width="*">
@@ -99,6 +113,9 @@
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Content="起動" Command="{Binding DataContext.StartServerCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource GrassButtonStyle}" Padding="10,2" Margin="2" />
+                                <Button Content="IPコピー" Command="{Binding DataContext.CopyIpCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
                                         CommandParameter="{Binding}"
                                         Style="{StaticResource GrassButtonStyle}" Padding="10,2" Margin="2" />
                                 <Button Content="フォルダを開く" Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=Window}}" 

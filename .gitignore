@@ -2,6 +2,7 @@
 .vs/
 bin/
 obj/
+Publish/
 *.user
 *.userosscache
 *.sln.docstates
