@@ -60,3 +60,7 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 - `Models/`: `ServerInfo.cs` (サーバー状態のデータモデル)
 - `ViewModels/`: `MainViewModel.cs` (リスト管理、ポーリングロジック)
 - `Services/`: `ServerManagerService.cs` (プロセス起動、ファイアウォール制御、UPnPマッピング)
+
+### 注意事項
+本プロジェクトは**Antigravity**を使用して開発されました。
+コードは全てAIによる貢献です。
